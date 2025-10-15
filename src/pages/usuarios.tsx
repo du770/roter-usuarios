@@ -1,20 +1,41 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
+interface User {
+  id: number;
+  name: {
+    firstname: string;
+    lastname: string;
+  };
+  email: string;
+  phone: string;
+  username: string;
+}
+
 export default function Usuarios() {
   const { id } = useParams<{ id: string }>();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (id) {
+      setLoading(true);
       fetch(`https://fakestoreapi.com/users/${id}`)
         .then(res => res.json())
-        .then(data => setUser(data));
+        .then(data => {
+          setUser(data);
+          setLoading(false);
+        })
+        .catch(() => setLoading(false));
     }
   }, [id]);
 
-  if (!user) {
+  if (loading) {
     return <div>Carregando...</div>;
+  }
+
+  if (!user) {
+    return <div>Usuário não encontrado.</div>;
   }
 
   return (
